@@ -71,3 +71,13 @@ anova(bd)
 #try beta.div() to get SCBD and LCBD
 ```
 
+
+```{r}
+between_data<-read.table("clipboard", header=T, sep="\t")
+kernelplot<-density(between_data[,9],na.rm=T)
+plot(kernelplot)
+
+sm.density.compare(mpg, cyl, xlab="Miles Per Gallon")
+title(main="MPG Distribution by Car Cylinders")
+
+```
