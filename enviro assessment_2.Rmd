@@ -75,45 +75,35 @@ river_data_avg<-summaryBy(doc+ammonium+nitrate+phosphate+tn+tp ~ river, data = e
 
 Radius plots or habitat and river enviro variation
 ```{r}
-
+#deleted by mistake, redo if necessary
 ```
 
 Boxplot of variation 
 ```{r}
-var_data<-read.table("clipboard", header=T, sep="\t")
-library(nicheROVER)
-data(fish) # 4 fish, 3 isotopes
-
-# generate 10 parameter draws from the posteriors of each fish with default prior
-nsamples <- 10
-system.time({
-  fish.par <- tapply(1:nrow(var_data), var_data$river,
-                  function(ii) niw.post(nsamples = nsamples, X = var_data[ii,2]))
-})
-
-# format data for plotting function
-fish.data <- tapply(1:nrow(var_data), var_data$river, function(ii) X = var_data[ii,2:7])
-
-clrs <- c("black", "red", "blue", "orange") # colors for each species
-niche.plot(niche.par = fish.par, niche.data = fish.data, pfrac = .1,
-          iso.names = expression(delta^{15}*N, delta^{13}*C, delta^{34}*S),
-          col = clrs, xlab = expression("Isotope Ratio (\u2030)"))
-
-library(yarrr)
-tempdata <- read.table("clipboard", header=T, sep="\t")
-tempdata2<-as.data.frame(scale(tempdata[,4:9], center = TRUE, scale = FALSE))
-tempdata2<-cbind(tempdata[,1:3],tempdata2)
-names(tempdata2)[1]<-paste("river")
-names(tempdata2)[2]<-paste("zone")
-names(tempdata2)[3]<-paste("habitat")
+cv_data<-read.table("clipboard", header=T, sep="\t")
+cv_data_CV<-summaryBy(doc+ammonium+nitrate+phosphate+tn+tp ~ zone, data = st_data, #using st_data for zone and habitat
+  FUN = function(x) { c(m = sd(x, na.rm=TRUE)/mean(x, na.rm=TRUE)*100) } )
 ```
 ```{r}
-ggplot(st_data, aes(x=river, y=doc)) + 
-  geom_boxplot() +
- scale_y_continuous(limits=c(-5,5)) +
-  theme_bw() + theme(panel.border = element_blank(), panel.grid.major = element_blank(),
-panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"))
-
+library(plotly) #one option
+plot_ly(cv_data_CV, x = ~x, y = ~y, type = 'scatter', mode = 'markers',
+        marker = list(size = ~nitrate.m, opacity = 0.5)) %>%
+  layout(title = 'variaton',
+         xaxis = list(showgrid = FALSE),
+         yaxis = list(showgrid = FALSE))
+```
+```{r}
+#all rivers in one plot after export-import in excel
+write.csv(cv_data_CV,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/cv_data_CV.csv")
+cv_data_CV$x<-seq.id<-as.vector(seq(1, 10, by = 1))
+cv_data_CV$y<-seq.id<-as.vector(rep.int(5, 10))
+all<-read.table("clipboard", header=T, sep="\t")
+```
+```{r}
+ggplot(all, aes(x = x, y = y, size = var)) +
+        geom_point() +
+  scale_size_area(max_size=20) +
+  theme(legend.position="none")
 ```
 
 Diversity vs niche plot--need to generate a metric of volume n-dimensional. 
