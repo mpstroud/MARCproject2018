@@ -39,15 +39,15 @@ surf_enviro<-read.table("clipboard", header=T, sep="\t")
 
 create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per floodplain.
 ```{r}
-df_list <- split(surf_enviro[,4:9], as.factor(surf_enviro$river)) #make sure rivers are alphabetically organized
-df_list2 <- matrix(0,ncol=6,nrow=0)
+df_list <- split(surf_enviro[,9:19], as.factor(surf_enviro$river)) #make sure rivers are alphabetically organized
+df_list2 <- matrix(0,ncol=11,nrow=0)
     for (i in 1:length(df_list)){ 
     temp <- scale(df_list[[i]], center = TRUE, scale = TRUE)
     df_list2<-rbind(df_list2,temp)
     } 
 df_list2<-as.data.frame(df_list2) 
 st_data<-cbind(surf_enviro[,2],df_list2)
-names(st_data)[1]<-paste("zone")
+names(st_data)[1]<-paste("river")
 #contains all rivers and  enviro variables standarized 
 ```
 ```{r}
@@ -168,4 +168,14 @@ tempdata %>%
   theme(legend.position="none")
 ```
 
+PCA analysis
+```{r}
+library(ade4)
+
+n<- nipals(st_data[,2:12])
+data<-complete.cases(st_data[,2:12])
+p<- princomp(data)
+plot(p)
+
+```
 
