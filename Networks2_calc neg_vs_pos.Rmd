@@ -11,6 +11,7 @@ library("igraph")
 library("stringi")
 library("Hmisc")
 library("rgexf")
+library("sm")
 ```
 
 Data input
@@ -68,79 +69,13 @@ link2<-merge(links,att,by = c("from"))
 ```{r}
 att <-read.table("clipboard", header = T, sep = "\t")
 link2<-merge(link2,att,by = c("to"))
-write.csv(link2,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/from Gephi software/neg_vs_pos/Big Hole.csv")
+write.csv(link2,file = "C:/Users/admin/Dropbox/b_manuscritpts/biofilmMARC/Datasets/from Gephi software/neg_vs_pos/Swan.csv")
 ```
 
-Export to gephi----code from https://gopalakrishna.palem.in/iGraphExport.html
 ```{r}
-# Converts the given igraph object to GEXF format and saves it at the given filepath location
-#     g: input igraph object to be converted to gexf format
-#     filepath: file location where the output gexf file should be saved
-#
-saveAsGEXF = function(g, filepath="proba.gexf")
-{
-  require(igraph)
-  require(rgexf)
-  if(is.null(V(g)$label))
-    V(g)$label <- as.character(V(g))
-  if(is.null(E(g)$weight))
-    E(g)$weight <- rep.int(1, ecount(g))
-  
-  nodes <- data.frame(cbind(V(g), V(g)$label))
-  edges <- t(Vectorize(get.edge, vectorize.args='id')(g, 1:ecount(g)))
-  vAttrNames <- setdiff(list.vertex.attributes(g), "label") 
-  nodesAtt <- data.frame(sapply(vAttrNames, function(attr) sub("&", "&",get.vertex.attribute(g, attr))))
-  eAttrNames <- setdiff(list.edge.attributes(g), "weight") 
-  edgesAtt <- data.frame(sapply(eAttrNames, function(attr) sub("&", "&",get.edge.attribute(g, attr))))
-  graphAtt <- sapply(list.graph.attributes(g), function(attr) sub("&", "&",get.graph.attribute(g, attr)))
-  output <- write.gexf(nodes, edges, 
-                       edgesWeight=E(g)$weight,
-                       edgesAtt = edgesAtt,
-                       nodesAtt = nodesAtt,
-                       meta=c(list(creator="Gopalakrishna Palem", description="igraph -> gexf converted file", keywords="igraph, gexf, R, rgexf"), graphAtt))
-  print(output, filepath, replace=T)
-}
-   
-
- saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/b.mscripts/biofilmMARC/Manuscript/Figures/Network/temp.gexf")
-
-
+data <-read.table("clipboard", header = T, sep = "\t")
+d <- density(data$x,bw=0.1) # returns the density data
+plot(d)
 ```
 
-Network statistics for analysis
-```{r}
-#WITHIN NETWORK
-#degree
-temp<- degree(g, v = V(g), mode = c("all"), loops = FALSE, normalized = FALSE)
-deg<- as.matrix(temp)
 
-#closeness centrality
-temp<- closeness(g, vids = V(g), mode = c("all"),normalized = FALSE)
-centrality<- as.matrix(temp)
-
-#betweness centrality
-temp<- betweenness(g, v = V(g), directed = FALSE, nobigint = TRUE, normalized = FALSE)
-betwen<- as.matrix(temp)
-
-#AMONG NETWORK
-#modularity---can do with Gephi
-m <- cluster_walktrap(g)
-modularity(g, m, weights = NULL)
-
-#transitivity
-transitivity(g, type = c("undirected"), vids = NULL, weights = NULL, isolates = c("NaN", "zero"))
-
-#average path length---calculate with Gephi
-
-#average node degree
-mean(deg[,1])
-sd(deg[,1])/mean(deg[,1])
-
-
-
-
-
-
-
-
-```
