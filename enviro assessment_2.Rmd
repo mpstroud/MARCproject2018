@@ -15,6 +15,7 @@ out<- baseflows(data, ts = "annual")
 mean(0.0283168*out$bf)
 sd(0.0283168*out$bf)
 ```
+
 ```{r}
 data <-read.table("clipboard", header = T, sep = "\t")
 colnames(data)<-c("Date","Q")
@@ -39,15 +40,17 @@ surf_enviro<-read.table("clipboard", header=T, sep="\t")
 
 create a dataset per river that is corrected per mean, zscores mean=0 sd=1 per floodplain.
 ```{r}
-df_list <- split(surf_enviro[,9:19], as.factor(surf_enviro$river)) #make sure rivers are alphabetically organized
-df_list2 <- matrix(0,ncol=11,nrow=0)
+df_list <- split(surf_enviro[,9:21], as.factor(surf_enviro$river)) #make sure rivers are alphabetically organized
+df_list2 <- matrix(0,ncol=13,nrow=0)
     for (i in 1:length(df_list)){ 
     temp <- scale(df_list[[i]], center = TRUE, scale = TRUE)
     df_list2<-rbind(df_list2,temp)
     } 
 df_list2<-as.data.frame(df_list2) 
-st_data<-cbind(surf_enviro[,2],df_list2)
-names(st_data)[1]<-paste("river")
+st_data<-cbind(surf_enviro[,1],surf_enviro[,2],surf_enviro[,3],df_list2)
+names(st_data)[1]<-paste("sampleID")
+names(st_data)[2]<-paste("river")
+names(st_data)[3]<-paste("zone")
 #contains all rivers and  enviro variables standarized 
 ```
 ```{r}
@@ -170,12 +173,21 @@ tempdata %>%
 
 PCA analysis
 ```{r}
-library(ade4)
+library(plsdepot)
 
-n<- nipals(st_data[,2:12])
-data<-complete.cases(st_data[,2:12])
-p<- princomp(data)
-plot(p)
+stars(st_data[1:24,4:15])#to look at case variation
 
-```
+pca_data<-st_data[,4:15]
+rownames(pca_data) <- paste(st_data$river, st_data$sampleID,sep=" ")
+enviro_nipals=nipals(pca_data,comps=3) #nipals algorithm (nonlinear iteration of PArtial Least Squares)
+enviro_nipals$values #eigenvalues
+enviro_nipals$scores #scores
+
+enviro_nipals$cor.xt
+enviro_nipals$contrib #RELEVANT, use to assess habitat cotnribution to total var?
+barplot(enviro_nipals$dmod[, 1], las = 2, border = NA) #checking observed-predicted
+
+plot(enviro_nipals,comps=c(1,2))
+plot(enviro_nipals,what="observations", col.points =st_data$river)
+``` 
 
