@@ -188,6 +188,6 @@ enviro_nipals$contrib #RELEVANT, use to assess habitat cotnribution to total var
 barplot(enviro_nipals$dmod[, 1], las = 2, border = NA) #checking observed-predicted
 
 plot(enviro_nipals,comps=c(1,2))
-plot(enviro_nipals,what="observations", col.points =st_data$river)
-``` 
+plot(enviro_nipals,what="observations", col.points =st_data$zone)
+ ``` 
 
