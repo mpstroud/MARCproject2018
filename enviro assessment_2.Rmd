@@ -188,7 +188,8 @@ enviro_nipals$contrib #RELEVANT, use to assess habitat cotnribution to total var
 barplot(enviro_nipals$dmod[, 1], las = 2, border = NA) #checking observed-predicted
 
 results_pca<-cbind(st_data[,1:3],enviro_nipals$scores)
-ggplot(results_pca, aes(x=t1, y=t2, color=river)) + geom_point(size=2)
+ggplot(results_pca, aes(x=t1, y=t2, shape=river)) + geom_point(size=2) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7))
 plot(enviro_nipals,comps=c(1,2))
 
 pca_data<-st_data[,4:13] #standarized data
@@ -198,12 +199,26 @@ enviro_nipals$values #eigenvalues
 enviro_nipals$scores #scores
 enviro_nipals$cor.xt
 enviro_nipals$contrib #RELEVANT, use to assess habitat cotnribution to total var?
-barplot(enviro_nipals$dmod[, 1], las = 2, border = NA) #checking observed-predicted
 
 results_pca<-cbind(st_data[,1:3],enviro_nipals$scores)
 ggplot(results_pca, aes(x=t1, y=t2, color=zone)) + geom_point(size=2)
 plot(enviro_nipals,comps=c(1,2))
-
+```
+```{r}
+#estimate OC contribution to each river's enviro variation
+tempdata<-subset(st_data,river=="Tongue")
+pca_data<-tempdata[,4:13] #standarized data
+rownames(pca_data) <- paste(tempdata$river, tempdata$sampleID,sep=" ")
+enviro_nipals=nipals(pca_data,comps=3)
+contributions<-as.data.frame(enviro_nipals$contrib) 
+contributions<-cbind(tempdata[,1],tempdata[,2],tempdata[,3],contributions)
+names(contributions)[1]<-paste("sampleID")
+names(contributions)[2]<-paste("river")
+names(contributions)[3]<-paste("zone")
+contr<-by(contributions[,4:6], contributions$zone, sum)
+contr[[1]]/(contr[[1]]+contr[[2]])*100
+contr[[2]]/(contr[[1]]+contr[[2]])*100
+```
 ``` 
 
 
