@@ -19,14 +19,14 @@ enviro<-read.table("clipboard", header=T, sep="\t")
 
 species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]
 
-species_NMDS <- species[,6:638] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
 enviro_NMDS <- enviro[,6:15] ; rownames(enviro_NMDS) <- paste(enviro$river, enviro$sampleID,sep=" ")
 
-example_NMDS=metaMDS(species_NMDS) #k=2dimesnions amnd trymax=max number of random starts in                                                        search of stable solution (makes the iterations a bit                                                            longer)
+example_NMDS=metaMDS(species_NMDS,k=3) #k=2dimesnions amnd trymax=max number of random starts in                                                        search of stable solution (makes the iterations a bit                                                            longer)
 example_NMDS
 
 scrs <- as.data.frame(scores(example_NMDS, display = "sites"))
-vf <- envfit(example_NMDS, enviro_NMDS, perm = 999,na.rm=T)
+vf <- envfit(example_NMDS, enviro_NMDS, perm = 999,na.rm=T, choices=c(1,2))
 #fit environemntal variables to NMDS ('envfit' works the other direction to RDA, 
 #how ordination explains enviro variation; run RDA if you want to compare
 #geo vs. enviro or how well enviro predicts species)
@@ -35,7 +35,8 @@ spp.scrs <- as.data.frame(scores(vf, display = "vectors"))
 spp.scrs <- cbind(spp.scrs, Species = rownames(spp.scrs))
 
 ggplot(scrs) +
-  geom_point(mapping = aes(x = NMDS1, y = NMDS2, colour = species$river)) +
+  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$zone)) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7)) +
   coord_fixed() + ## need aspect ratio of 1!
   geom_segment(data = spp.scrs,
                aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
@@ -68,7 +69,6 @@ shannon<-as.data.frame(shannon)
 plot(shannon)
 diversity<-cbind(shannon,species[,1:6])
 plot(diversity$river,diversity$shannon)
-plot(results$river,results$var,ylim=c(0,4000))
 write.csv(diversity,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/diversity.csv")
 
 #for betadiversity
@@ -79,11 +79,11 @@ dist<-beta.pair(presabs, index.family="sorensen")
 dist[[2]]
 # If we want to compare the beta diversities of communities aggregated by groups
 #we can use "betadisper" analysis.
-#<<<<<<< HEAD
+#=======
 groups <- factor(species$river)
 #=======
 groups <- factor(species$region)
-#>>>>>>> 9c5ec016de380e06e2262db9fac802b1163a7057
+#=======
 bd<-betadisper(dist[[3]],groups)
 plot(bd)
 boxplot(bd)
@@ -94,8 +94,7 @@ anova(bd)
 # Using bray-curtis dissimilarity and thus abundance data as well
 #The function will calculate beta diversity (and its partitions) based on Bray-Curtis dissimilarity index.
 spec<-read.table("clipboard",header=T,sep="\t")
-presabs<-ifelse(spec>0,1,0)
-dist<-beta.pair(presabs, index.family="sorensen")
+dist<-beta.pair.abund(spec, index.family = "bray")
 turnover<-as.data.frame(as.vector(dist[[1]]))
 nestedness<-as.data.frame(as.vector(dist[[2]]))
 beta<-as.data.frame(as.vector(dist[[3]]))
@@ -103,7 +102,16 @@ beta<-cbind(turnover,nestedness,beta)
 write.csv(beta,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/beta.csv")
 
 #try beta.div() to get SCBD and LCBD
-
+library(adespatial)
+bd<-beta.div(spec, method="sorensen")
 
 ```
 
+#fast plot on node degree vs. closness centrality with %OC---to dientify keystone taxa
+```{r}
+data<-read.table("clipboard",header=T,sep="\t")
+ggplot(data, aes(x=zone, y=xval, colour=yval)) + geom_point() +
+  scale_colour_gradientn(colours=rainbow(4)) 
+
+
+```
