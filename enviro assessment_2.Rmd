@@ -219,6 +219,17 @@ contr<-by(contributions[,4:6], contributions$zone, sum)
 contr[[1]]/(contr[[1]]+contr[[2]])*100
 contr[[2]]/(contr[[1]]+contr[[2]])*100
 ```
-``` 
+
+Enviromental heterogeneity of each river (using betadisper function)
+```{r}
+enviro<-log(surf_enviro[,12:21]+1)
+d<-dist(enviro,method = "euclidean")
+bd<-betadisper(d, surf_enviro$river, type = c("centroid"))
+boxplot(bd,ylim=c(0,6))
+group<-surf_enviro$river
+TukeyHSD(bd, which="group")
+```
+
+
 
 

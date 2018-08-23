@@ -7,6 +7,7 @@ library(vegan)
 library(betapart)
 library(grid)
 library(ggplot2)
+library(adespatial)
 ```
 NDMS with variable surfing
 ```{r}
@@ -100,11 +101,15 @@ nestedness<-as.data.frame(as.vector(dist[[2]]))
 beta<-as.data.frame(as.vector(dist[[3]]))
 beta<-cbind(turnover,nestedness,beta)
 write.csv(beta,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/beta.csv")
-
+```
+```{r}
 #try beta.div() to get SCBD and LCBD
-library(adespatial)
-bd<-beta.div(spec, method="sorensen")
-
+spec<-subset(species, river=="Tongue")
+spec<-spec[,4:758]
+bd<-beta.div(spec, method="hellinger")
+bd<-as.data.frame(bd$SCBD)
+SCbd<-cbind(SCbd,bd)
+write.csv(SCbd,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
 ```
 
 #fast plot on node degree vs. closness centrality with %OC---to dientify keystone taxa
