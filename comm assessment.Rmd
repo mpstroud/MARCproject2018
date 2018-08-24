@@ -96,26 +96,28 @@ anova(bd)
 #The function will calculate beta diversity (and its partitions) based on Bray-Curtis dissimilarity index.
 spec<-read.table("clipboard",header=T,sep="\t")
 dist<-beta.pair.abund(spec, index.family = "bray")
-turnover<-as.data.frame(as.vector(dist[[1]]))
-nestedness<-as.data.frame(as.vector(dist[[2]]))
-beta<-as.data.frame(as.vector(dist[[3]]))
+turnover<-as.data.frame(as.vector(dist$beta.bray.bal))
+nestedness<-as.data.frame(as.vector(dist$beta.bray.gra))
+beta<-as.data.frame(as.vector(dist$beta.bray))
 beta<-cbind(turnover,nestedness,beta)
-write.csv(beta,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/beta.csv")
+write.csv(beta,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
 ```
 ```{r}
 #try beta.div() to get SCBD and LCBD
 spec<-subset(species, river=="Tongue")
-spec<-spec[,4:758]
+spec<-spec[,6:760]
 bd<-beta.div(spec, method="hellinger")
 bd<-as.data.frame(bd$SCBD)
 SCbd<-cbind(SCbd,bd)
 write.csv(SCbd,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
 ```
 
-#fast plot on node degree vs. closness centrality with %OC---to dientify keystone taxa
+#fast plot on node degree vs. closness centrality with %OC---to identify keystone taxa
 ```{r}
-data<-read.table("clipboard",header=T,sep="\t")
-ggplot(data, aes(x=zone, y=xval, colour=yval)) + geom_point() +
+network_data<-read.table("clipboard",header=T,sep="\t")
+SCBD<-read.table("clipboard",header=T,sep="\t")
+merged_data<-merge(network_data,SCBD, by="id")
+ggplot(merged_data, aes(x=att4, y=Degree, colour=log(scbd+1))) + geom_point() + 
   scale_colour_gradientn(colours=rainbow(4)) 
 
 
