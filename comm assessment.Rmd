@@ -102,7 +102,15 @@ beta<-as.data.frame(as.vector(dist[[3]]))
 beta<-cbind(turnover,nestedness,beta)
 write.csv(beta,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/beta.csv")
 
-#try beta.div() to get SCBD and LCBD
+#try beta.div() to get SCBD and LCBD----already did but can't find script.
+```
+
+```{r}
+
+
+
+
+
 
 
 ```

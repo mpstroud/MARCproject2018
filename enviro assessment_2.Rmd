@@ -219,6 +219,17 @@ contr<-by(contributions[,4:6], contributions$zone, sum)
 contr[[1]]/(contr[[1]]+contr[[2]])*100
 contr[[2]]/(contr[[1]]+contr[[2]])*100
 ```
+Estimating environmental heterogeneity
+```{r}
+enviro<-read.table("clipboard", header=T, sep="\t")
+enviroh <- enviro[-c(86), ]
+spec <- enviroh[,6:15]
+group <- factor(enviroh$river)
+dist_enviro<-dist(spec,method = "euclidean")
+bd<-betadisper(dist_enviro,group, type = c("centroid"))
+plot(bd)
+boxplot(bd)
+results<-cbind(enviroh[,1:5],as.data.frame(as.vector(bd[[3]])))
 ``` 
 
 
