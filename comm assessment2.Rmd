@@ -17,7 +17,7 @@ rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
 example_NMDS=metaMDS(species_NMDS,k=2,trymax=10000)
 par(mfrow=c(1,1))
 figNMDS<-ordiplot(example_NMDS,type="n",xlim = c(-0.5,0.5),ylim = c(-0.5,0.5))
-text(figNMDS, "sites", col="blue", cex=0.7)
+text(figNMDS, "sites", col="blue", cex=0.7) 
 
 ordisurf(example_NMDS,species$tn,main="",col="forestgreen")
 orditorp(example_NMDS,display="sites",col="grey30",air=0.1,cex=1)
@@ -71,13 +71,3 @@ anova(bd)
 #try beta.div() to get SCBD and LCBD
 ```
 
-
-```{r}
-between_data<-read.table("clipboard", header=T, sep="\t")
-kernelplot<-density(between_data[,9],na.rm=T)
-plot(kernelplot)
-
-sm.density.compare(mpg, cyl, xlab="Miles Per Gallon")
-title(main="MPG Distribution by Car Cylinders")
-
-```

@@ -220,6 +220,7 @@ contr[[1]]/(contr[[1]]+contr[[2]])*100
 contr[[2]]/(contr[[1]]+contr[[2]])*100
 ```
 
+
 Enviromental heterogeneity of each river (using betadisper function)
 ```{r}
 enviro<-log(surf_enviro[,12:21]+1)
@@ -230,6 +231,19 @@ group<-surf_enviro$river
 TukeyHSD(bd, which="group")
 ```
 
+
+Estimating environmental heterogeneity
+```{r}
+enviro<-read.table("clipboard", header=T, sep="\t")
+enviroh <- enviro[-c(86), ]
+spec <- enviroh[,6:15]
+group <- factor(enviroh$river)
+dist_enviro<-dist(spec,method = "euclidean")
+bd<-betadisper(dist_enviro,group, type = c("centroid"))
+plot(bd)
+boxplot(bd)
+results<-cbind(enviroh[,1:5],as.data.frame(as.vector(bd[[3]])))
+``` 
 
 
 

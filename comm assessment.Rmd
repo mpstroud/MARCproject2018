@@ -8,6 +8,7 @@ library(betapart)
 library(grid)
 library(ggplot2)
 library(adespatial)
+library(fossil)
 ```
 NDMS with variable surfing
 ```{r}
@@ -36,7 +37,7 @@ spp.scrs <- as.data.frame(scores(vf, display = "vectors"))
 spp.scrs <- cbind(spp.scrs, Species = rownames(spp.scrs))
 
 ggplot(scrs) +
-  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$zone)) +
+  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$river),size=4) +
   scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7)) +
   coord_fixed() + ## need aspect ratio of 1!
   geom_segment(data = spp.scrs,
@@ -45,13 +46,22 @@ ggplot(scrs) +
   geom_text(data = spp.scrs, aes(x = NMDS1, y = NMDS2, label = Species),
             size = 3)
 
+ggplot(scrs) +
+  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$zone),size=4) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7)) 
+  
+ggplot() +
+  geom_text(data = scrs, aes(x = NMDS1, y = NMDS2, label = rownames(scrs)),
+            size = 3)
+  
+
 #basic plots for NMDS
 ordisurf(example_NMDS,species$tn,main="",col="forestgreen")
 orditorp(example_NMDS,display="sites",col="grey30",air=0.1,cex=1)
 
 
 #inference
-anosim(species_NMDS, species$zone, permutations=999)
+anosim(species_NMDS, species$river, permutations=999)
 stressplot(example_NMDS)
 
 ```
@@ -72,7 +82,7 @@ diversity<-cbind(shannon,species[,1:6])
 plot(diversity$river,diversity$shannon)
 write.csv(diversity,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/diversity.csv")
 
-#for betadiversity
+#for betadiversity-------with pres/absence data
 presabs<-ifelse(spec>0,1,0)
 dist<-beta.pair(presabs, index.family="sorensen")
 # To get the pairwise Jaccard index turnover partition between communities, type: dist[[1]]. 
@@ -101,9 +111,24 @@ nestedness<-as.data.frame(as.vector(dist$beta.bray.gra))
 beta<-as.data.frame(as.vector(dist$beta.bray))
 beta<-cbind(turnover,nestedness,beta)
 write.csv(beta,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
+
+
+#compare to geographic distance
+presabs<-ifelse(spec>0,1,0) #using pres/abs data and sorensen index Baselga 2012
+dist<-beta.pair(presabs, index.family="sorensen")
+turnover<-as.data.frame(as.vector(dist[[1]]))
+nestedness<-as.data.frame(as.vector(dist[[2]]))
+beta<-as.data.frame(as.vector(dist[[3]]))
+
+geo<-read.table("clipboard",header=T,sep="\t")
+geographic<-as.data.frame(as.vector(earth.dist(geo,dist = T)))
+reg<-lm(nestedness[,1] ~ geographic[,1])
+summary(reg)
+
 ```
+
+try beta.div() to get SCBD and LCBD
 ```{r}
-#try beta.div() to get SCBD and LCBD
 spec<-subset(species, river=="Tongue")
 spec<-spec[,6:760]
 bd<-beta.div(spec, method="hellinger")
@@ -112,13 +137,19 @@ SCbd<-cbind(SCbd,bd)
 write.csv(SCbd,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
 ```
 
-#fast plot on node degree vs. closness centrality with %OC---to identify keystone taxa
+fast plot on node degree vs. closness centrality with %OC---to identify keystone taxa
 ```{r}
 network_data<-read.table("clipboard",header=T,sep="\t")
 SCBD<-read.table("clipboard",header=T,sep="\t")
 merged_data<-merge(network_data,SCBD, by="id")
 ggplot(merged_data, aes(x=att4, y=Degree, colour=log(scbd+1))) + geom_point() + 
   scale_colour_gradientn(colours=rainbow(4)) 
+```
 
+```{r}
+data<-read.table("clipboard",header=T,sep="\t")
+ggplot(data, aes(x=x, y=y, size=z2)) + geom_point()  
+  
 
 ```
+
