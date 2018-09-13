@@ -142,8 +142,8 @@ fast plot on node degree vs. closness centrality with %OC---to identify keystone
 network_data<-read.table("clipboard",header=T,sep="\t")
 SCBD<-read.table("clipboard",header=T,sep="\t")
 merged_data<-merge(network_data,SCBD, by="id")
-ggplot(merged_data, aes(x=att4, y=Degree, colour=log(scbd+1))) + geom_point() + 
-  scale_colour_gradientn(colours=rainbow(4)) 
+ggplot(merged_data, aes(x=att4, y=Degree, colour=closnesscentrality)) + geom_point() + 
+  scale_colour_gradientn(colours=rainbow(4))
 ```
 
 ```{r}
@@ -151,5 +151,15 @@ data<-read.table("clipboard",header=T,sep="\t")
 ggplot(data, aes(x=x, y=y, size=z2)) + geom_point()  
   
 
+```
+
+Assessing pos/neg interactions
+```{r}
+uniqID<-as.data.frame(unique(data[,8]))
+colnames(uniqID)<-c("corr")
+neg<-subset(uniqID, corr >= 0, select=c(corr))
+pos<-length(neg[,1])/length(uniqID[,1])*100
+pos
+100-pos
 ```
 
