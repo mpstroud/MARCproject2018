@@ -21,10 +21,10 @@ enviro<-read.table("clipboard", header=T, sep="\t")
 
 species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]
 
-species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+species_NMDS <- species[,6:755] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
 enviro_NMDS <- enviro[,6:15] ; rownames(enviro_NMDS) <- paste(enviro$river, enviro$sampleID,sep=" ")
 
-example_NMDS=metaMDS(species_NMDS,k=3) #k=2dimesnions amnd trymax=max number of random starts in                                                        search of stable solution (makes the iterations a bit                                                            longer)
+example_NMDS=metaMDS(species_NMDS,k=3) #k=2dimesnions amnd trymax=max number of random starts in                                                      search of stable solution (makes the iterations a bit                                                            longer)
 example_NMDS
 
 scrs <- as.data.frame(scores(example_NMDS, display = "sites"))
@@ -65,6 +65,42 @@ anosim(species_NMDS, species$river, permutations=999)
 stressplot(example_NMDS)
 
 ```
+
+Using RDA and Var partitioning to asses environemtnal control on biofilm community
+```{r}
+example_RDA=rda(species_NMDS ~ doc+ammonium+nitrate+phosphate+tn+tp+don+np+afdm+chl,enviro_NMDS,na.action=na.omit)
+summary(example_RDA)
+anova(example_RDA)
+
+intercept_RDA <-rda(species_NMDS ~ 1, enviro_NMDS)
+full_RDA <-rda(species_NMDS ~ ., enviro_NMDS)
+step.res_MARC <- ordiR2step(intercept_RDA, scope = formula(full_RDA), direction="forward")
+step.res_MARC$anova  # Summary table
+#Only doc selected, poor explanation?
+#FALTA VARPART but not sure is the rigth analysis:CCA is a good choice if the user has clear and strong a priori hypotheses on constraints and is not interested in the major structure in the data set. However, such exploratory problems are better analysed with unconstrained methods such as correspondence analysis (decorana, corresp) or non-metric multidimensional scaling (metaMDS) and environmental interpretation after analysis (envfit, ordisurf). 
+VAR_model <- varpart(species_NMDS, ~ doc, ~ phosphate,data=enviro_NMDS, transfo="hel")
+#repeat fro keystone taxa and cyanos?
+```
+
+PCoA with envfit to look for coherent patterns (only using <OTU_525 to avoid zeros:
+```{r}
+spe.bray <- vegdist(species_NMDS)
+spe.b.pcoa <- cmdscale(spe.bray, k=(nrow(species_NMDS)-1), eig=TRUE)
+# Plot of the sites
+dev.new(title="PCoA on OTU")
+ordiplot(scores(spe.b.pcoa, choices=c(1,2)), type="t", main="PCoAs")
+abline(h=0, lty=3)
+abline(v=0, lty=3)
+
+vf <- envfit(spe.b.pcoa, enviro_NMDS, perm = 999,na.rm=T, choices=c(1,2))
+#fit environemntal variables to NMDS ('envfit' works the other direction to RDA, 
+#how ordination explains enviro variation; run RDA if you want to compare
+#geo vs. enviro or how well enviro predicts species)
+vf$vectors
+
+```
+
+
 
 Alpha and beta diversity
 ```{r}
