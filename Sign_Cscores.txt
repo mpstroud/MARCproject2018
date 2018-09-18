@@ -1,0 +1,1 @@
+Sp1	Sp2	obs.C-score	exp.C-score	SES_Cscore	pval_less	pval_greater

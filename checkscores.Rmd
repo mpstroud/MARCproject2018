@@ -1,0 +1,16 @@
+---
+title: "CheckScores"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+species<-read.table("clipboard", header=T, sep="\t")
+enviro<-read.table("clipboard", header=T, sep="\t")
+
+species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]
+
+species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+
+
+```
+

@@ -1,0 +1,63 @@
+---
+title: "RDA analysis"
+output: html_document
+---
+
+```{r}
+library(vegan)
+library(betapart)
+library(grid)
+library(ggplot2)
+library(adespatial)
+library(fossil)
+```
+
+Across all flooplains
+```{r setup, include=FALSE}
+species<-read.table("clipboard", header=T, sep="\t")
+enviro<-read.table("clipboard", header=T, sep="\t")
+geo<-read.table("clipboard", header=T, sep="\t")
+
+species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]; geo <- geo[-c(86), ]
+
+species_RDA <- species[,6:748] ; rownames(species_RDA) <- paste(species$river, species$sampleID,sep=" ")
+enviro_RDA <- enviro[,6:18] ; rownames(enviro_RDA) <- paste(enviro$river, enviro$sampleID,sep=" ")
+
+#spatial db-MEM variables were obtained using principal coordinates of neighborhood matrix (PCNM).
+geo_dist<-vegdist(geo, method="euclidean")
+geo_eigen<-pcnm(geo_dist)
+geo_eigen<-as.data.frame(geo_eigen[[1]]) #eigenvalues for geographic distance
+
+#varpart function to separate spatial from enviro
+all_OTUs <- varpart(species_RDA, enviro_RDA, geo_eigen, transfo="hel")
+all_OTUs
+
+```
+
+Per flooplain
+```{r setup, include=FALSE}
+geo<-read.table("clipboard", header=T, sep="\t")
+enviro<-read.table("clipboard", header=T, sep="\t") ; enviro<-log(enviro+1)
+species<-read.table("clipboard", header=T, sep="\t")
+```
+```{r}
+#spatial db-MEM variables were obtained using principal coordinates of neighborhood matrix (PCNM).
+geo_dist<-vegdist(geo, method="euclidean")
+geo_eigen<-pcnm(geo_dist)
+geo_eigen<-as.data.frame(geo_eigen[[1]]) #eigenvalues for geographic distance
+#RDA to find significant variables
+rda0 <- rda(species ~ 1, enviro)  # Model with intercept only
+rda1 <- rda(species ~ ., enviro)  # Model with all explanatory variables
+step.res <- ordiR2step(rda0, scope = formula(rda1), direction="forward")
+step.res$anova
+
+rda0 <- rda(species ~ 1, geo_eigen)  # Model with intercept only
+rda1 <- rda(species ~ ., geo_eigen)  # Model with all explanatory variables
+step.res <- ordiR2step(rda0, scope = formula(rda1), direction="forward")
+step.res$anova
+
+#varpart function to separate spatial from enviro
+all_OTUs <- varpart(species, enviro, geo_eigen, data=enviro, transfo="hel")
+all_OTUs
+
+```
