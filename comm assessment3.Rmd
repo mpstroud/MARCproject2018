@@ -1,0 +1,240 @@
+---
+title: "Data analysis"
+output: pdf_document
+---
+```{r}
+library(vegan)
+library(betapart)
+library(grid)
+library(ggplot2)
+library(adespatial)
+library(fossil)
+library(ggpubr)
+```
+NDMS with variable surfing
+```{r}
+
+getwd()
+species = read.csv("input_data.csv")
+#-----------------------------------------------------alternative
+species<-read.table("clipboard", header=T, sep="\t")
+enviro<-read.table("clipboard", header=T, sep="\t")
+
+species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]
+
+species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+enviro_NMDS <- enviro[,6:15] ; rownames(enviro_NMDS) <- paste(enviro$river, enviro$sampleID,sep=" ")
+
+example_NMDS=metaMDS(species_NMDS,k=3,trymax=100) #k=2 dimesnions amnd trymax=max number of random starts in                                                        search of stable solution (makes the iterations a bit                                                            longer)
+example_NMDS
+
+scrs <- as.data.frame(scores(example_NMDS, display = "sites"))
+vf <- envfit(example_NMDS, enviro_NMDS, perm = 999,na.rm=T, choices=c(1,2))
+#fit environemntal variables to NMDS ('envfit' works the other direction to RDA, 
+#how ordination explains enviro variation; run RDA if you want to compare
+#geo vs. enviro or how well enviro predicts species)
+
+spp.scrs <- as.data.frame(scores(vf, display = "vectors"))
+spp.scrs <- cbind(spp.scrs, Species = rownames(spp.scrs))
+
+ggplot(scrs) +
+  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$river),size=4) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7)) +
+  coord_fixed() + ## need aspect ratio of 1!
+  geom_segment(data = spp.scrs,
+               aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2),
+               arrow = arrow(length = unit(0.25, "cm")), colour = "grey") +
+  geom_text(data = spp.scrs, aes(x = NMDS1, y = NMDS2, label = Species),
+            size = 3)
+
+ggplot(scrs) +
+  geom_point(mapping = aes(x = NMDS1, y = NMDS2, shape = species$zone),size=4) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,8,18,6,7)) 
+  
+ggplot() +
+  geom_text(data = scrs, aes(x = NMDS1, y = NMDS2, label = rownames(scrs)),
+            size = 3)
+  
+
+#basic plots for NMDS
+ordisurf(example_NMDS,species$tn,main="",col="forestgreen")
+orditorp(example_NMDS,display="sites",col="grey30",air=0.1,cex=1)
+
+plot(example_NMDS)
+ordiplot(example_NMDS,type="n")
+ordihull(example_NMDS,groups=species$region,draw="polygon",col="grey90",label=F)
+orditorp(example_NMDS,display="sites",air=0.01,cex=0.5)
+
+
+#inference
+stressplot(example_NMDS)
+```
+```{r}
+species<-read.table("clipboard", header=T, sep="\t")
+species_NMDS <- species[,8:762] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+anosim(species_NMDS, species$hab, permutations=999)
+```
+```{r}
+library(RVAideMemoire)
+adonis(species[,6:760]~region,data=species,method="bray")
+pairwise.perm.manova(species[,6:500],species$region,nperm=100,test = c("Spherical"))
+```
+
+Alpha and beta diversity
+```{r}
+#Diversity metrics--------------------------------------------------------------------------------------
+library(vegan)
+library(betapart)
+#shanon diversity
+spec <- species[,6:760]
+shannon<-diversity(spec, index = "shannon")
+shannon<-as.vector(shannon)
+shannon<-as.data.frame(shannon)
+
+plot(shannon)
+diversity<-cbind(shannon,species[,1:6])
+plot(diversity$river,diversity$shannon)
+write.csv(diversity,file = "C:/Users/admin/Dropbox/b.mscripts/biofilmMARC/Datasets/working datasets/diversity.csv")
+
+#for betadiversity-------with pres/absence data
+presabs<-ifelse(spec>0,1,0)
+dist<-beta.pair(presabs, index.family="sorensen")
+# To get the pairwise Jaccard index turnover partition between communities, type: dist[[1]]. 
+#To get nestedness partition, type: dist[[2]]. To get all beta diversity: dist[[3]].
+dist[[2]]
+# If we want to compare the beta diversities of communities aggregated by groups
+#we can use "betadisper" analysis.
+#=======
+groups <- factor(species$river)
+#=======
+groups <- factor(species$region)
+#=======
+bd<-betadisper(dist[[3]],groups)
+plot(bd)
+boxplot(bd)
+anova(bd)
+```
+
+```{r}
+# Using bray-curtis dissimilarity and thus abundance data as well
+#The function will calculate beta diversity (and its partitions) based on Bray-Curtis dissimilarity index.
+spec<-read.table("clipboard",header=T,sep="\t")
+dist<-beta.pair.abund(spec, index.family = "bray")
+turnover<-as.data.frame(as.vector(dist$beta.bray.bal))
+nestedness<-as.data.frame(as.vector(dist$beta.bray.gra))
+beta<-as.data.frame(as.vector(dist$beta.bray))
+beta<-cbind(turnover,nestedness,beta)
+write.csv(beta,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
+
+
+#compare to geographic distance
+presabs<-ifelse(spec>0,1,0) #using pres/abs data and sorensen index Baselga 2012
+dist<-beta.pair(presabs, index.family="sorensen")
+turnover<-as.data.frame(as.vector(dist[[1]]))
+nestedness<-as.data.frame(as.vector(dist[[2]]))
+beta<-as.data.frame(as.vector(dist[[3]]))
+
+geo<-read.table("clipboard",header=T,sep="\t")
+geographic<-as.data.frame(as.vector(earth.dist(geo,dist = T)))
+reg<-lm(nestedness[,1] ~ geographic[,1])
+summary(reg)
+
+```
+
+try beta.div() to get SCBD and LCBD
+```{r}
+spec<-subset(species, river=="Tongue")
+spec<-spec[,6:760]
+bd<-beta.div(spec, method="hellinger")
+bd<-as.data.frame(bd$SCBD)
+SCbd<-cbind(SCbd,bd)
+write.csv(SCbd,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
+```
+
+fast plot on node degree vs. closness centrality with %OC---to identify keystone taxa
+```{r}
+network_data<-read.table("clipboard",header=T,sep="\t")
+SCBD<-read.table("clipboard",header=T,sep="\t")
+merged_data<-merge(network_data,SCBD, by="id")
+ggplot(merged_data, aes(x=att4, y=Degree, colour=closnesscentrality)) + geom_point() + 
+  scale_colour_gradientn(colours=rainbow(4))
+```
+
+```{r}
+data<-read.table("clipboard",header=T,sep="\t")
+ggplot(data, aes(x=x, y=y, size=z2)) + geom_point()  
+  
+
+```
+
+Assessing pos/neg interactions
+```{r}
+uniqID<-as.data.frame(unique(data[,8]))
+colnames(uniqID)<-c("corr")
+neg<-subset(uniqID, corr >= 0, select=c(corr))
+pos<-length(neg[,1])/length(uniqID[,1])*100
+pos
+100-pos
+```
+
+Plotting %keystone vs. Hdiversity
+```{r}
+data<-read.table("clipboard",header=T,sep="\t"); n<-data$hab;data <- as.data.frame(t(data[,-1]));colnames(data) <- n;data$id <- factor(row.names(data))
+
+bc<-read.table("clipboard",header=T,sep="\t");merged_data<-merge(data,bc, by="id"); merged_data2<-merged_data[,c(-1)]; total<-as.data.frame(colSums(merged_data2))
+
+data<-read.table("clipboard",header=T,sep="\t") #make a plot with results
+b <- ggplot(data, aes(x = rk, y = d))
+ggplot(data, aes(x=rk, y=d, shape=river)) + geom_point(size=3) +
+  scale_shape_manual(values=c(0,15,1,19,2,17,18,6,7)) 
+
+
+```
+
+Dendogram
+```{r}
+d_species <- dist(species_NMDS, method = "manhattan") # method="man" # is a bit better
+hc_species <- hclust(d_species, method = "complete")
+species_river <- rev(levels(species[,1]))#--------------------------------------
+
+library(dendextend)
+library(colorspace)
+dend <- as.dendrogram(hc_species)
+# order it the closest we can to the order of the observations:
+dend <- rotate(dend, 1:118)
+
+# Color the branches based on the clusters:
+dend <- color_branches(dend, k=3) #, groupLabels=river)#--------------------------------------
+
+# Manually match the labels, as much as possible, to the real classification of the flowers:
+labels_colors(dend) <-
+   rainbow_hcl(3)[sort_levels_values(#--------------------------------------
+      as.numeric(species[,1])[order.dendrogram(dend)]#--------------------------------------
+   )]
+
+# We shall add the flower type to the labels:
+labels(dend) <- paste(as.character(species[,1])[order.dendrogram(dend)],#--------------------------------------
+                           "(",labels(dend),")", 
+                           sep = "")
+# We hang the dendrogram a bit:
+dend <- hang.dendrogram(dend,hang_height=0.1)
+# reduce the size of the labels:
+# dend <- assign_values_to_leaves_nodePar(dend, 0.5, "lab.cex")
+dend <- set(dend, "labels_cex", 0.5)
+# And plot:
+par(mar = c(3,3,3,7))
+plot(dend, 
+     main = "Clustered Species data set
+     (the labels give the true river)", 
+     horiz =  TRUE,  nodePar = list(cex = .007))
+legend("topleft", legend = species_river, fill = rainbow_hcl(3))#--------------------------------------
+
+par(mar = rep(0,4))
+circlize_dendrogram(dend)
+
+
+
+
+```
+
+
