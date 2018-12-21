@@ -64,12 +64,12 @@ nrow(links); nrow(unique(links[,c("from", "to")]))
 ```
 ```{r}
 att <-read.table("clipboard", header = T, sep = "\t")
-link2<-merge(links,att,by = c("from"))
+link2<-merge(links,att,by = c("from")) #change "id" columnname for "from" - to add other attributes
 ```
 ```{r}
 att <-read.table("clipboard", header = T, sep = "\t")
-link2<-merge(link2,att,by = c("to"))
-write.csv(link2,file = "C:/Users/admin/Dropbox/b_manuscritpts/biofilmMARC/Datasets/from Gephi software/neg_vs_pos/Swan.csv")
+link2<-merge(link2,att,by = c("to")) #change "id" columnname for "to" - to add other attributes
+write.csv(link2,file = "C:/Users/admin/Dropbox/rock_sign.csv")
 ```
 
 ```{r}
