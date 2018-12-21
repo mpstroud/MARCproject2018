@@ -61,9 +61,15 @@ orditorp(example_NMDS,display="sites",col="grey30",air=0.1,cex=1)
 
 
 #inference
-anosim(species_NMDS, species$river, permutations=999)
 stressplot(example_NMDS)
 
+species<-read.table("clipboard", header=T, sep="\t")
+species_NMDS <- species[,7:760] ; rownames(species_NMDS) <- paste(species$biome, species$label,sep=" ")
+anosim(species_NMDS, species$hab, permutations=999)
+
+library(RVAideMemoire)
+adonis(species[,7:760]~region,data=species,method="bray")
+pairwise.perm.manova(species[,6:80],species$river,nperm=100,test = c("Spherical"))
 ```
 
 Using RDA and Var partitioning to asses environemtnal control on biofilm community
