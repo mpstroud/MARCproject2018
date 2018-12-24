@@ -66,7 +66,7 @@ stressplot(example_NMDS)
 
 species<-read.table("clipboard", header=T, sep="\t")
 species_NMDS <- species[,7:760] ; rownames(species_NMDS) <- paste(species$biome, species$label,sep=" ")
-anosim(species_NMDS, species$hab, permutations=999)
+anosim(species_NMDS, species$river, permutations=999)
 
 library(RVAideMemoire)
 adonis(species[,7:760]~region,data=species,method="bray")

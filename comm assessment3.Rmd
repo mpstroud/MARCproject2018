@@ -69,11 +69,18 @@ orditorp(example_NMDS,display="sites",air=0.01,cex=0.5)
 #inference
 stressplot(example_NMDS)
 ```
+PERMANOVA
 ```{r}
 species<-read.table("clipboard", header=T, sep="\t")
-species_NMDS <- species[,8:762] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
-anosim(species_NMDS, species$hab, permutations=999)
+adonis(species[,4:758]~region,data=species,method="bray")
 ```
+ANOSIM
+```{r}
+species<-read.table("clipboard", header=T, sep="\t")
+species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+anosim(enviro_NMDS, species$region, permutations=999)
+```
+PAIRWISE
 ```{r}
 library(RVAideMemoire)
 adonis(species[,6:760]~region,data=species,method="bray")
