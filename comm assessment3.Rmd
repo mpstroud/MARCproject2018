@@ -22,7 +22,7 @@ enviro<-read.table("clipboard", header=T, sep="\t")
 
 species <- species[-c(86), ] ; enviro <- enviro[-c(86), ]
 
-species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+species_NMDS <- species[,6:759] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
 enviro_NMDS <- enviro[,6:15] ; rownames(enviro_NMDS) <- paste(enviro$river, enviro$sampleID,sep=" ")
 
 example_NMDS=metaMDS(species_NMDS,k=3,trymax=100) #k=2 dimesnions amnd trymax=max number of random starts in                                                        search of stable solution (makes the iterations a bit                                                            longer)

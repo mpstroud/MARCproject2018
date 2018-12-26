@@ -34,11 +34,11 @@ all_OTUs
 
 ```
 
-Per flooplain
+Detailed variables
 ```{r setup, include=FALSE}
-geo<-read.table("clipboard", header=T, sep="\t")
-enviro<-read.table("clipboard", header=T, sep="\t") ; enviro<-log(enviro+1)
-species<-read.table("clipboard", header=T, sep="\t")
+geo<-read.table("clipboard", header=T, sep="\t") ; geo <- geo[-c(86), ]
+enviro<-read.table("clipboard", header=T, sep="\t") ; enviro <- enviro[-c(86), ] ; enviro<-log(enviro+1)
+species<-read.table("clipboard", header=T, sep="\t") ; species <- species[-c(86), ]
 ```
 ```{r}
 #spatial db-MEM variables were obtained using principal coordinates of neighborhood matrix (PCNM).
@@ -57,7 +57,10 @@ step.res <- ordiR2step(rda0, scope = formula(rda1), direction="forward")
 step.res$anova
 
 #varpart function to separate spatial from enviro
-all_OTUs <- varpart(species, enviro, geo_eigen, data=enviro, transfo="hel")
+all_OTUs <- varpart(species, geo_eigen[,c(5,1,2)],enviro[,c(1,4,7)], transfo="hel")
 all_OTUs
+
+eviro_contrib <- varpart(species, ~ rel_cyano, ~ phosphate, ~ doc, data=enviro, transfo="hel")
+eviro_contrib
 
 ```
