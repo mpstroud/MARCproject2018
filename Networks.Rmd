@@ -98,7 +98,7 @@ saveAsGEXF = function(g, filepath="proba.gexf")
 }
    
 
- saveAsGEXF(g,filepath="C:/Users/admin/Dropbox/sediment.gexf")
+ saveAsGEXF(g,filepath="C:/Users/mpeipoch/Dropbox/manuscripts/biofilmMARC/Manuscript/Figures/Network2/grassland.gexf")
 
 
 ```
