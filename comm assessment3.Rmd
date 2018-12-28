@@ -72,13 +72,13 @@ stressplot(example_NMDS)
 PERMANOVA
 ```{r}
 species<-read.table("clipboard", header=T, sep="\t")
-adonis(species[,4:758]~region,data=species,method="bray")
+adonis(species[,6:759]~region,data=species,method="bray")
 ```
 ANOSIM
 ```{r}
 species<-read.table("clipboard", header=T, sep="\t")
-species_NMDS <- species[,6:760] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
-anosim(enviro_NMDS, species$region, permutations=999)
+species_NMDS <- species[,6:759] ; rownames(species_NMDS) <- paste(species$river, species$sampleID,sep=" ")
+anosim(species_NMDS, species$region, permutations=999)
 ```
 PAIRWISE
 ```{r}

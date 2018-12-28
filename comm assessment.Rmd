@@ -172,12 +172,11 @@ summary(reg)
 
 try beta.div() to get SCBD and LCBD
 ```{r}
-spec<-subset(species, river=="Tongue")
-spec<-spec[,6:760]
+spec<-subset(species, river=="Big Hole")
+spec<-spec[,6:759]
 bd<-beta.div(spec, method="hellinger")
 bd<-as.data.frame(bd$SCBD)
-SCbd<-cbind(SCbd,bd)
-write.csv(SCbd,file = "C:/Users/mpeipoch/Dropbox/b_manuscritpts/biofilmMARC/Datasets/working datasets/beta.csv")
+write.csv(bd,file = "C:/Users/admin/Dropbox/manuscripts/biofilmMARC/Manuscript/beta.csv")
 ```
 
 fast plot on node degree vs. closness centrality with %OC---to identify keystone taxa
