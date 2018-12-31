@@ -37,7 +37,7 @@ cocp<-as.data.frame(coc$P)
 subcoc<-list()
 nom<-as.vector(colnames(cocr))
 for(i in 1:ncol(cocr)){
-  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.6 | cocr[,i] < -0.6& cocp[,i] < 0.01, select = c(nom[[i]]))
+  subcoc[[i]] <- subset(cocr, cocr[,i] > 0.6 | cocr[,i] < -0.6 & cocp[,i] < 0.01, select = c(nom[[i]]))
 } #this will generate a list of as many elements as OTUs, each element contains a vector with only OTU correlations above the predetermined cutoff (r=0.6 and p-value 0.5 here)
 
 subcoc2<- matrix(0,ncol=3,nrow=0)
@@ -69,7 +69,7 @@ link2<-merge(links,att,by = c("from")) #change "id" columnname for "from" - to a
 ```{r}
 att <-read.table("clipboard", header = T, sep = "\t")
 link2<-merge(link2,att,by = c("to")) #change "id" columnname for "to" - to add other attributes
-write.csv(link2,file = "C:/Users/admin/Dropbox/rock_sign.csv")
+write.csv(link2,file = "C:/Users/mpeipoch/Dropbox/manuscripts/biofilmMARC/Datasets/working datasets/grassland_sign.csv")
 ```
 
 ```{r}
