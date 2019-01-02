@@ -135,8 +135,8 @@ sd(deg[,1])/mean(deg[,1])
 
 
 
-
-
+dat_quart <-read.table("clipboard", header = T, sep = "\t")
+quantile(dat_quart$Degree, c(.90,.95,.98)); quantile(dat_quart$closnesscentrality, c(.90,.95,.98)) ;quantile(dat_quart$betweenesscentrality, c(.90,.95,.98))  
 
 
 ```

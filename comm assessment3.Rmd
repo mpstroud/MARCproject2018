@@ -93,10 +93,14 @@ Alpha and beta diversity
 library(vegan)
 library(betapart)
 #shanon diversity
-spec <- species[,6:760]
+spec <- read.table("clipboard",header=T,sep="\t")
 shannon<-diversity(spec, index = "shannon")
 shannon<-as.vector(shannon)
 shannon<-as.data.frame(shannon)
+
+spec <- read.table("clipboard",header=T,sep="\t")
+presabs<-ifelse(spec>0,1,0)
+richness<-as.data.frame(as.vector(rowSums(presabs)))#richness
 
 plot(shannon)
 diversity<-cbind(shannon,species[,1:6])
