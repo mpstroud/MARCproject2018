@@ -36,10 +36,10 @@ all_OTUs
 
 Detailed variables
 ```{r setup, include=FALSE}
-geo<-read.table("clipboard", header=T, sep="\t") ; geo <- geo[-c(75,76), ]
-enviro<-read.table("clipboard", header=T, sep="\t") ; enviro <- enviro[-c(75,76), ] ; enviro<-log(enviro+1)
-bio<-read.table("clipboard", header=T, sep="\t") ; bio <- bio[-c(75,76), ] ; bio<-log(bio+1)
-species<-read.table("clipboard", header=T, sep="\t") ; species <- species[-c(75,76), ]
+geo<-read.table("clipboard", header=T, sep="\t") 
+enviro<-read.table("clipboard", header=T, sep="\t") ; enviro<-log(enviro+1)
+bio<-read.table("clipboard", header=T, sep="\t") ; bio<-log(bio+1)
+species<-read.table("clipboard", header=T, sep="\t") 
 ```
 ```{r}
 #spatial db-MEM variables were obtained using principal coordinates of neighborhood matrix (PCNM).
